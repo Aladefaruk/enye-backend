@@ -10,9 +10,9 @@ app.get('/',(req,res)=>{
 app.get('/api/rates', (req,res,next)=>{
     let baseRate= req.query.base;
     let currency= req.query.currency;
-    fetch(`https://api.exchangeratesapi.io/latest?base=${baseRate}&symbols${currency}`)
+    fetch(`https://api.exchangeratesapi.io/latest?base=${baseRate}&symbols=${currency}`)
     .then(response=>{
-        return response.json
+        return response.json()
     })
     .then(data=>{
         let finalResponse= {
@@ -21,13 +21,12 @@ app.get('/api/rates', (req,res,next)=>{
                 date:data.date,
                 rates:data.rates,
             }
-
         }
         res.send(finalResponse);
     })
     .catch(error=>{
         res.status(404);
-        res.send(error);
+        res.json(error);
     })
 })
 
