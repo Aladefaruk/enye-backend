@@ -1,46 +1,43 @@
-const express= require('express');
-const app= express();
-const fetch= require('node-fetch')
-
-
-app.get('/',(req,res)=>{
-    res.send('this is working')
-})
+const express = require('express');
+const fetch = require('node-fetch');
+const app = express();
 
 app.get('/api/rates', (req,res,next)=>{
-    let baseRate= req.query.base;
-    let currency= req.query.currency;
-    fetch(`https://api.exchangeratesapi.io/latest?base=${baseRate}&symbols=${currency}`)
-    .then(response=>{
-        return response.json()
-    })
-    .then(data=>{
-        let finalResponse= {
-            results: {
-                base:data.base,
-                date:data.date,
-                rates:data.rates,
+        const base = req.query.base;
+        const currency = req.query.currency;
+        fetch(`https://api.exchangeratesapi.io/latest?base=${base}&symbols=${currency}`)
+        .then(response=>{
+            if(response.ok){
+            response.json().then(data=>{
+                const output = { 
+                    results:{
+                    base: data.base,
+                    date: data.date,
+                    rates: data.rates
+                }
             }
-        }
-        res.send(finalResponse);
-    })
-    .catch(error=>{
-        res.status(404);
-        res.json(error);
-    })
-})
-
-
-app.use((req,res,next)=>{
-    res.status(404)
+            res.send(output);
+            })
+            }else{
+                throw 'Something went wrong'
+            }
+        })
+        .catch(error=>{
+            res.json({
+                status: 404,
+                message: 'A problem Occured!'
+            })
+        })
+        
+});
+app.use((req, res, next)=>{
+    res.status(404);
     res.send({
-        error: 'Not Found'
+        error: 'End Point Not Found'
     })
-})
+});
 
-
-PORT =process.env.PORT || 3000
-
+PORT = process.env.PORT || 3000
 app.listen(PORT, ()=>{
-    console.log(`Now running on port ${PORT}`)
+    console.log(`Now running on port ${PORT}!`);
 })
